@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.thymeleaf.org ">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Contas</title>
+  <style>
+    tr:nth-child(even){
+    background-color: #f2f2f2;
+    }
+  </style>
+  <!--Import Google Icon Font-->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <!--Import materialize.css-->
+  <link type="text/css" rel="stylesheet" href="materialize/materialize/css/materialize.min.css" media="screen,projection"/>
+  <!--Let browser know website is optimized for mobile-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style/styleCss.css"/>
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.thymeleaf.org ">
+
+<body>
+
+<div class="card-panel teal lighten-2">
+  <span class="white-text"><h3> Contas</h3></span>
+</div>
+
+<table class="responsive-table">
+  <thead>
+  <tr>
+    <th>ID account</th>
+
+    <th><form  method="post">
+
+      <button class="btn waves-effect waves-light" name="action">Criar conta
+        <i class="material-icons right">send</i>
+      </button>
+
+    </form></th>
+
+    <th>Excluir conta</th>
+  </tr>
+  </thead>
+  <tbody>
+  <div class="row" id="account-table">
+    <div class="col s12 m9 l10">
+  <tr th:each="account : ${accounts}">
+      <td> <span th:text="${account.id}"></span></td>
+
+      <td><a th:href="${(#mvc.url('ACA#accountHome').arg(0,account.id)).build()}"><button value="${account.id}" class="waves-effect waves-light btn-small" type="button" name="go-to-account">
+        <i class="material-icons">account_circle</i>
+      </button></h5></a></td>
+
+      <td><a th:href="${(#mvc.url('ACA#deleteAccount').arg(0,account.id)).build()}" ><button class="waves-effect waves-light btn-small" type="button" name="go-to-account">
+        <i class="material-icons">delete</i>
+      </button></h5> </a></td>
+
+    </div>
+    </div>
+  </tr>
+  </tbody>
+</table>
+
+  <script type="text/javascript" src="materialize/materialize/js/materialize.min.js"></script>
+</body>
+</html>
