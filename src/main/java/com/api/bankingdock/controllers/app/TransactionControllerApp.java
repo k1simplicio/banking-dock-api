@@ -29,14 +29,18 @@ public class TransactionControllerApp {
     @Autowired
     AccountService accountService;
 
+    public boolean checkCurrentTransactionDate(UUID id) {
+        Optional<Transaction> transaction = transactionRepository.findById(id);
+        return transaction.map(value -> value.getTransactionDate().toString().contains(Instant.now().toString().substring(0, 10))).orElse(false);
+    }
+
     public void withdraw(Account account, Transaction transaction) {
         var valueChecker = (account.getAmount() - transaction.getValue());
 
         if (valueChecker >= 0 && account.getDailyCount() + transaction.getValue() <= account.getDailyLimit()) {
             account.setAmount(valueChecker);
-            transactionRepository.save(transaction);
             account.setDailyCount(dailyValue(account));
-            System.out.println(account.getDailyCount());
+            transactionRepository.save(transaction);
             accountService.save(account);
         }
     }
@@ -49,10 +53,8 @@ public class TransactionControllerApp {
     public double dailyValue(Account account) {
         double dailyValue = 0;
         List<Transaction> transactions = transactionRepository.findByAccount(Optional.ofNullable(account));
-        Instant date = Instant.now();
         for (Transaction currentTransaction : transactions) {
-            System.out.println(currentTransaction.getTransactionDate().toString().contains(date.toString().substring(0, 10)));
-            if (currentTransaction.getTransactionDate().toString().contains(date.toString().substring(0, 10)) &&
+            if (checkCurrentTransactionDate(currentTransaction.getId()) &&
                     currentTransaction.getType().toString().equals("SAQUE")) {
                 dailyValue += currentTransaction.getValue();
             }

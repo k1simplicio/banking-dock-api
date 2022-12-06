@@ -37,13 +37,30 @@ public class AccountControllerApp {
         return transactionRepository.findByAccount(accountOptional);
     }
 
+    public void checkDailyLimit(UUID id) {
+        double dailyCount = 0;
+        Optional<Account> accountOptional = accountsRepository.findById(id);
+        List<Transaction> transactions = transfersFromAccount(id);
+        String todayDate = Instant.now().toString().substring(0, 10);
+        if (!transactions.isEmpty()) {
+            for(Transaction transaction: transactions){
+                if (transaction.getTransactionDate().toString().contains(todayDate) &&
+                transaction.getType().toString().equals("SAQUE")) {
+                    dailyCount += transaction.getValue();
+                }
+            }
+            accountOptional.get().setDailyCount(dailyCount);
+        }
+
+    }
+
     public List<Transaction> transfersFromDate(UUID id, String start, String end) {
         Optional<Account> accountOptional = accountsRepository.findById(id);
-        List<Transaction> transfers = transactionRepository.findByAccount(accountOptional);
+        List<Transaction> transactions = transactionRepository.findByAccount(accountOptional);
         List<Transaction> transactionsFromDate = new ArrayList<>();
-        for (Transaction transfer : transfers) {
-            if (transfer.getTransactionDate().isAfter(Instant.parse(start.replaceAll(",", "") + "T00:00:00.00Z")) &&
-                    transfer.getTransactionDate().isBefore(Instant.parse(end.replaceAll(",", "") + "T23:59:59.999999999Z"))) {
+        for (Transaction transfer : transactions) {
+            if (transfer.getTransactionDate().isAfter(Instant.parse(start + "T00:00:00.00Z")) &&
+                    transfer.getTransactionDate().isBefore(Instant.parse(end + "T23:59:59.999999999Z"))) {
                 transactionsFromDate.add(transfer);
             }
         }
@@ -101,6 +118,7 @@ public class AccountControllerApp {
     @RequestMapping(value = "/home")
     public ModelAndView accountHome(@RequestParam UUID id) {
         Account account = accountsRepository.findById(id).get();
+        checkDailyLimit(id);
         List<Transaction> transactions = transfersFromAccount(id);
         ModelAndView mv = new ModelAndView("accountHome");
 
@@ -116,6 +134,7 @@ public class AccountControllerApp {
     public ModelAndView searchTransaction(@RequestParam(value = "id") UUID id, String startDate, String finalDate) {
         List<Transaction> transfersFromDate = transfersFromDate(id, startDate.replaceAll(",", ""), finalDate.replaceAll(",", ""));
         Account account = accountsRepository.findById(id).get();
+        checkDailyLimit(id);
         List<Transaction> transactions = transfersFromAccount(id);
         ModelAndView mv = new ModelAndView("accountHome");
 
